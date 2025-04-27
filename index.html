@@ -3,67 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigator</title>
+    <title>Combined Detection App</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#3367D6"/>
-    <script defer src="face-api.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@latest/dist/coco-ssd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script> 
+
     <script defer src="script.js"></script>
-    
 </head>
 <body>
     <div class="container">
-        <h1>Recognize Loved Ones</h1>
-        <p>This tool helps identify registered individuals using the webcam.</p>
+        <h1>Detection App</h1>
+
+        <div class="mode-switcher">
+            <button id="switchToObjectDetection" class="mode-button active">Object Detection</button>
+            <button id="switchToFaceRecognition" class="mode-button">Face Recognition</button>
+        </div>
 
         <div class="main-content">
             <div class="video-container">
                 <video id="video" width="640" height="480" autoplay muted playsinline></video>
                 <canvas id="canvas"></canvas>
-                 <div id="loader" class="loader">Loading Models...</div>
+                <div id="loader" class="loader">Loading Models...</div>
             </div>
 
-            <div class="controls">
-                <h2>Register a New Person</h2>
-                <div class="form-group">
-                    <label for="nameInput">Name:</label>
-                    <input type="text" id="nameInput" required>
-                </div>
-                <div class="form-group">
-                    <label for="relationshipInput">Relationship:</label>
-                    <input type="text" id="relationshipInput" placeholder="e.g., Son, Daughter, Friend" required>
-                </div>
-                <div class="form-group">
-                    <label for="imageUpload">Reference Image:</label>
-                    <input type="file" id="imageUpload" accept="image/*" required>
-                </div>
-                <button id="registerButton">Register Face</button>
-                <div id="registerStatus" class="status-message"></div>
+            <div id="objectDetectionUI" class="controls-container">
+                 <div class="controls object-controls">
+                    <h2>Object Detection Controls</h2>
+                    <p>Select COCO classes to detect.</p>
+                    <div class="form-group">
+                        <label for="classInput">Class Names (comma-separated):</label>
+                        <input type="text" id="classInput" placeholder="e.g., person, bottle, cell phone">
+                        <small>See <a href="https://github.com/tensorflow/tfjs-models/blob/master/coco-ssd/src/classes.ts" target="_blank" rel="noopener noreferrer">list of classes</a>.</small>
+                    </div>
+                    <button id="updateClassesButton">Update Detected Classes</button>
+                    <div id="updateClassesStatus" class="status-message"></div>
 
-                <h2>Registered People</h2>
-                <ul id="registeredList">
-                    <li>No faces registered yet.</li>
-                </ul>
-                 <button id="clearAllButton">Clear All Registrations</button>
-                 <div id="clearStatus" class="status-message"></div>
+                    <h2>Currently Detecting:</h2>
+                    <ul id="detectingClassesList">
+                        <li>Nothing selected yet.</li>
+                    </ul>
+                     <button id="clearDetectedClassesButton">Clear Selection</button>
+                     <div id="clearClassesStatus" class="status-message"></div>
+                 </div>
+            </div>
+
+            <div id="faceRecognitionUI" class="controls-container" style="display: none;">
+                 <div class="controls face-controls">
+                     <h2>Face Recognition Controls</h2>
+                    <p>Register faces for recognition.</p>
+                     <div class="form-group">
+                        <label for="nameInput">Name:</label>
+                        <input type="text" id="nameInput">
+                    </div>
+                     <div class="form-group">
+                        <label for="relationshipInput">Relationship (Optional):</label>
+                        <input type="text" id="relationshipInput" placeholder="e.g., Son, Friend">
+                    </div>
+                    <div class="form-group">
+                        <label for="imageUpload">Reference Image:</label>
+                        <input type="file" id="imageUpload" accept="image/*">
+                    </div>
+                    <button id="registerButton">Register Face</button>
+                    <div id="registerStatus" class="status-message"></div>
+
+                    <h2>Registered People</h2>
+                    <ul id="registeredList">
+                        <li>No faces registered yet.</li>
+                    </ul>
+                     <button id="clearAllButton">Clear All Registrations</button>
+                     <div id="clearStatus" class="status-message"></div>
+                 </div>
             </div>
         </div>
     </div>
-    <script>
-        // Check if service workers are supported
-        if ('serviceWorker' in navigator) {
-          window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js') // Path to your service worker file
-              .then((registration) => {
-                console.log('Service Worker registered successfully:', registration.scope);
-              })
-              .catch((error) => {
-                console.error('Service Worker registration failed:', error);
-              });
-          });
-        } else {
-          console.log('Service Workers are not supported in this browser.');
-        }
-      </script>
 </body>
 </html>
